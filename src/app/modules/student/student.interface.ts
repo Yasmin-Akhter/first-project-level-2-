@@ -1,9 +1,11 @@
-export type StudentName = {
+import { Model } from 'mongoose';
+
+export type TStudentName = {
   firstName: string;
   middleName: string;
   lastName: string;
 };
-export type StudentGuardian = {
+export type TStudentGuardian = {
   fatherName: string;
   fatherOccupation: string;
   fatherContactNo: string;
@@ -11,16 +13,16 @@ export type StudentGuardian = {
   motherOccupation: string;
   motherContactNo: string;
 };
-export type LocalGuardian = {
+export type TLocalGuardian = {
   name: string;
   occupation: string;
   contactNo: string;
   address: string;
 };
-export type Student = {
+export type TStudent = {
   id: string;
-  name: StudentName;
-  gender: 'male' | 'female';
+  name: TStudentName;
+  gender: 'male' | 'female' | 'other';
   dateOfBirth: string;
   email: string;
   contactNo: string;
@@ -28,8 +30,22 @@ export type Student = {
   bloodGroup: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
   presentAddress: string;
   permanentAddress: string;
-  guardian: StudentGuardian;
-  localGuardian: LocalGuardian;
+  guardian: TStudentGuardian;
+  localGuardian: TLocalGuardian;
   profileImg?: string;
   isActive: 'active' | 'blocked';
 };
+//custom statics
+export interface studentModel extends Model<TStudent> {
+  isExistsStudent(id: string): Promise<TStudent | null>;
+}
+
+//custom instance method
+// export type StudentMethods = {
+//   isUserExists(id: string): Promise<TStudent | null>; //this is an async function which will return an student type promise;
+// };
+// export type studentModel = Model<
+//   TStudent,
+//   Record<string, never>,
+//   StudentMethods
+// >;
