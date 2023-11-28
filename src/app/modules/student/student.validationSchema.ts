@@ -40,6 +40,7 @@ const localGuardianValidateSchema = z.object({
 // Define the main student schema using the sub-schemas
 export const studentValidateSchema = z.object({
   id: z.string({ required_error: 'Id is required' }),
+  password: z.string({ required_error: 'Password is required' }),
   name: nameSchema,
   gender: z.enum(['male', 'female', 'other'], {
     required_error: 'Gender is required',
@@ -61,6 +62,7 @@ export const studentValidateSchema = z.object({
   localGuardian: localGuardianValidateSchema,
   profileImg: z.string(),
   isActive: z.enum(['active', 'blocked']).default('active'),
+  isDeleted: z.boolean(),
 });
 
 export default studentValidateSchema;

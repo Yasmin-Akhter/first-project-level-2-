@@ -1,4 +1,5 @@
 import { Schema, model } from 'mongoose';
+import bcrypt from 'bcrypt';
 import {
   // StudentMethods,
   TLocalGuardian,
@@ -7,6 +8,7 @@ import {
   TStudentName,
   studentModel,
 } from './student.interface';
+import config from '../../config';
 
 const nameSchema = new Schema<TStudentName>({
   firstName: {
@@ -89,6 +91,10 @@ const studentSchema = new Schema<TStudent, studentModel>({
     required: [true, 'Id is required'],
     unique: true,
   },
+  password: {
+    type: String,
+    required: [true, 'password is required'],
+  },
   name: {
     type: nameSchema,
     required: [true, 'Name is required'],
@@ -147,6 +153,38 @@ const studentSchema = new Schema<TStudent, studentModel>({
     },
     default: 'active',
   },
+  isDeleted: {
+    type: Boolean,
+  },
+});
+
+//pre middleware/hook
+studentSchema.pre('save', async function (next) {
+  // eslint-disable-next-line @typescript-eslint/no-this-alias
+  const user = this; //refers current document
+  user.password = await bcrypt.hash(
+    user.password,
+    Number(config.bcrypt_salt_rounds),
+  );
+  next();
+});
+
+studentSchema.post('save', async function (doc, next) {
+  doc.password = '';
+  next();
+});
+
+studentSchema.pre('find', async function (next) {
+  this.find({ isDeleted: { $ne: true } });
+  next();
+});
+studentSchema.pre('findOne', async function (next) {
+  this.find({ isDeleted: { $ne: true } });
+  next();
+});
+studentSchema.pre('aggregate', async function (next) {
+  this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
+  next();
 });
 //custom static
 studentSchema.statics.isExistsStudent = async function (id: string) {
